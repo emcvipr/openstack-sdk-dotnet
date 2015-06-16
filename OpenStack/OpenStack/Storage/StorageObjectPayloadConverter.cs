@@ -113,14 +113,23 @@ namespace OpenStack.Storage
            
             try
             {
-                var lastModified = DateTime.Parse(headers["Last-Modified"].First());
+                DateTime lastModified;
+                if (headers.Contains("Last-Modified"))
+                {
+                    lastModified = DateTime.Parse(headers["Last-Modified"].First());
+                }
+                else {
+                    var timeStamp = headers["x-emc-mtime"].First();
+                    DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                    lastModified = dtDateTime.AddMilliseconds(System.Convert.ToDouble(timeStamp));
+                }                
                 var eTag = headers["ETag"].First();
                 var length = long.Parse(headers["Content-Length"].First());
                 if (objectLength.HasValue)
                 {
                     length = objectLength.Value;
                 }
-                var contentType = headers["Content-Type"].First();
+                var contentType = "application/octet-stream"; //headers["Content-Type"].First();
                 var metadata = headers.Where(kvp => kvp.Key.StartsWith("X-Object-Meta")).ToDictionary(header => header.Key.Substring(14, header.Key.Length - 14), header => header.Value.First());
 
                 return CreateStorageObject(objectName, containerName, lastModified, eTag, length, contentType, metadata, headers);
