@@ -80,8 +80,8 @@ namespace OpenStack.Storage
             try
             {
                 name = (string)container["name"];
-                var bytes = (long)container["bytes"];
-                var objectCount = (int)container["count"];
+                var bytes = 0;//(long)container["bytes"];
+                var objectCount = 0;//(int)container["count"];
                 return new StorageContainer(name,bytes, objectCount, new Dictionary<string, string>(), new List<StorageObject>());
             }
             catch (Exception ex)
@@ -112,8 +112,8 @@ namespace OpenStack.Storage
 
             try
             {
-                var totalBytes = long.Parse(headers["X-Container-Bytes-Used"].First());
-                var totalObjects = int.Parse(headers["X-Container-Object-Count"].First());
+                var totalBytes = 0;//long.Parse(headers["X-Container-Bytes-Used"].First());
+                var totalObjects = 0;//int.Parse(headers["X-Container-Object-Count"].First());
                 var metadata = headers.Where(kvp => kvp.Key.StartsWith("X-Container-Meta")).ToDictionary(header => header.Key.Substring(17, header.Key.Length - 17), header => header.Value.First());
                 var objects = objectConverter.Convert(name, payload);
                 var folders = folderConverter.Convert(objects);
