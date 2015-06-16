@@ -140,7 +140,7 @@ namespace OpenStack.Storage
                 ? string.Empty
                 : string.Format("&prefix={0}", folderName);
             
-            client.Uri = new Uri(string.Format("{0}?delimiter=/{1}", baseUri, prefix));
+            client.Uri = new Uri(string.Format("{0}?format=json&delimiter=/{1}", baseUri, prefix));
             client.Method = HttpMethod.Get;
 
             return await client.SendAsync();
@@ -153,7 +153,9 @@ namespace OpenStack.Storage
 
             var client = this.GetHttpClient(this.Context);
 
-            client.Uri = CreateRequestUri(this.Context.PublicEndpoint, containerName);
+            //client.Uri = CreateRequestUri(this.Context.PublicEndpoint, containerName);
+            var baseUri = CreateRequestUri(this.Context.PublicEndpoint, containerName);
+            client.Uri = new Uri(string.Format("{0}?format=json", baseUri));
             client.Method = HttpMethod.Get;
 
             return await client.SendAsync();
@@ -262,10 +264,12 @@ namespace OpenStack.Storage
 
             var client = this.GetHttpClient(this.Context);
 
-            client.Uri = CreateRequestUri(this.Context.PublicEndpoint, sourceContainerName, sourceObjectName);
-            client.Headers.Add("Destination",string.Join("/", targetContainerName, targetObjectName));
+            //client.Uri = CreateRequestUri(this.Context.PublicEndpoint, sourceContainerName, sourceObjectName);
+            client.Uri = CreateRequestUri(this.Context.PublicEndpoint, targetContainerName, targetObjectName);
+            //client.Headers.Add("Destination",string.Join("/", targetContainerName, targetObjectName));
 
-            client.Method = new HttpMethod("COPY");
+            client.Headers.Add("X-Copy-From", string.Join("/", sourceContainerName, sourceObjectName));
+            client.Method = new HttpMethod("PUT");//new HttpMethod("COPY");
 
             return await client.SendAsync();
         }
@@ -275,7 +279,9 @@ namespace OpenStack.Storage
         {
             var client = this.GetHttpClient(this.Context);
 
-            client.Uri = CreateRequestUri(this.Context.PublicEndpoint);
+            //client.Uri = CreateRequestUri(this.Context.PublicEndpoint);
+            var baseUri = CreateRequestUri(this.Context.PublicEndpoint);
+            client.Uri = new Uri(string.Format("{0}?format=json", baseUri));
             client.Method = HttpMethod.Get;
 
             return await client.SendAsync();
