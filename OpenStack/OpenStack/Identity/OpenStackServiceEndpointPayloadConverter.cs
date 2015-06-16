@@ -32,7 +32,7 @@ namespace OpenStack.Identity
             {
                 var endpoint = JObject.Parse(payload);
                 var publicUri = (string) endpoint["publicURL"];
-                var region = (string)endpoint["region"];
+                var region = "region1"; //(string)endpoint["region"];
                 var version = (string)endpoint["versionId"];
                 var versionInfo = (string)endpoint["versionInfo"];
                 var versionList = (string)endpoint["versionList"];
