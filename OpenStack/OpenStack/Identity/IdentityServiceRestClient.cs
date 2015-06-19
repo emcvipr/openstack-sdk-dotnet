@@ -58,7 +58,11 @@ namespace OpenStack.Identity
 
             client.Uri = new Uri(string.Format("{0}/tokens", this.Credential.AuthenticationEndpoint));
             client.Method = HttpMethod.Post;
-            client.Content = CreateAuthenticationJsonPayload(this.Credential).ConvertToStream();
+            client.Content = CreateAuthenticationJsonPayload(this.Credential, true).ConvertToStream();
+
+            client.SendAsync().Wait();
+
+            client.Content = CreateAuthenticationJsonPayload(this.Credential, false).ConvertToStream();
 
             return await client.SendAsync();
         }
@@ -68,16 +72,23 @@ namespace OpenStack.Identity
         /// </summary>
         /// <param name="creds">The credentials used to authenticate.</param>
         /// <returns>A string that represents a Json payload.</returns>
-        internal static string CreateAuthenticationJsonPayload(IOpenStackCredential creds)
+        internal static string CreateAuthenticationJsonPayload(IOpenStackCredential creds, bool buildUnScoped)
         {
             var authPayload = new StringBuilder();
             authPayload.Append("{\"auth\":{\"passwordCredentials\":{\"username\":\"");
             authPayload.Append(creds.UserName);
             authPayload.Append("\",\"password\":\"");
             authPayload.Append(creds.Password);
-            authPayload.Append("\"},\"tenantName\":\"");
-            authPayload.Append(creds.TenantId);
-            authPayload.Append("\"}}");
+            authPayload.Append("\"}");
+            if (buildUnScoped)
+            {
+                authPayload.Append("}}");
+            }
+            else {
+                authPayload.Append(",\"tenantName\":\"");
+                authPayload.Append(creds.TenantId);
+                authPayload.Append("\"}}");
+            }            
             return authPayload.ToString();
         }
     }
