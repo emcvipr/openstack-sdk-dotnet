@@ -124,7 +124,16 @@ namespace OpenStack.Storage
                     lastModified = dtDateTime.AddMilliseconds(System.Convert.ToDouble(timeStamp));
                 }                
                 var eTag = headers["ETag"].First();
-                var length = long.Parse(headers["Content-Length"].First());
+                long length;
+                if (headers.Contains("Content-Length"))
+                {
+                    length = long.Parse(headers["Content-Length"].First());
+                }
+                else
+                {
+                    length = 0;
+                }
+                
                 if (objectLength.HasValue)
                 {
                     length = objectLength.Value;
