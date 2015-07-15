@@ -81,11 +81,25 @@ namespace OpenStack.Storage
         Task<IHttpResponseAbstraction> GetFolder(string containerName, string folderName);
 
         /// <summary>
+        /// Gets a storage folder from the remote OpenStack instance and limits results using supplied request parameter.
+        /// </summary>
+        /// <param name="request">The available parameters to list items in a container.</param>
+        /// <returns>The Http response from the remote service.</returns>
+        Task<IHttpResponseAbstraction> GetFolder(ListStorageObjectsRequest request);
+
+        /// <summary>
         /// Gets a storage container from the remote OpenStack instance.
         /// </summary>
         /// <param name="containerName">The name of the storage container.</param>
         /// <returns>The Http response from the remote service.</returns>
         Task<IHttpResponseAbstraction> GetContainer(string containerName);
+
+        /// <summary>
+        /// Gets a storage container from the remote OpenStack instance and limits results using supplied request parameter.
+        /// </summary>
+        /// <param name="request">The available parameters to list items in a container.</param>
+        /// <returns>The Http response from the remote service.</returns>
+        Task<IHttpResponseAbstraction> GetContainer(ListStorageObjectsRequest request);
 
         /// <summary>
         /// Deletes a storage object from the remote OpenStack instance.

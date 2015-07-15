@@ -200,6 +200,18 @@ namespace OpenStack.Storage
         }
 
         /// <inheritdoc/>
+        public async Task<StorageFolder> GetStorageFolder(ListStorageObjectsRequest request)
+        {
+            request.ContainerName.AssertIsNotNullOrEmpty("ContainerName", "Cannot get a storage folder with a container name that is null or empty.");
+            request.FolderName.AssertIsNotNullOrEmpty("FolderName", "Cannot get a storage folder with a name that is null or empty.");
+
+            request.FolderName = EnsureTrailingSlashOnFolderName(request.FolderName);
+
+            var client = this.GetPocoClient();
+            return await client.GetStorageFolder(request);
+        }
+
+        /// <inheritdoc/>
         public async Task CreateStorageFolder(string containerName, string folderName)
         {
             containerName.AssertIsNotNullOrEmpty("containerName", "Cannot create a storage folder with a container name that is null or empty.");
@@ -238,6 +250,16 @@ namespace OpenStack.Storage
         }
 
         /// <inheritdoc/>
+        public async Task<StorageContainer> GetStorageContainer(ListStorageObjectsRequest request)
+        {
+            request.AssertIsNotNull("request", "Cannot limit item results with a ListStorageObjectsRequest that is null.");
+            request.ContainerName.AssertIsNotNullOrEmpty("ContainerName", "Cannot get a storage container with a container name that is null or empty.");
+
+            var client = this.GetPocoClient();
+            return await client.GetStorageContainer(request);
+        }
+
+        /// <inheritdoc/>
         public async Task DeleteStorageContainer(string containerName)
         {
             containerName.AssertIsNotNullOrEmpty("containerName", "Cannot delete a storage container with a container name that is null or empty.");
@@ -253,6 +275,38 @@ namespace OpenStack.Storage
 
             var client = this.GetPocoClient();
             await client.UpdateStorageContainer(container);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<StorageObject>> ListStorageObjects(ListStorageObjectsRequest request)
+        {
+            request.AssertIsNotNull("request", "Cannot limit storage objects with a ListStorageObjectsRequest parameter that is null.");
+            request.ContainerName.AssertIsNotNullOrEmpty("ContainerName", "Cannot list storage objects with a container name that is null or empty.");
+
+            var objects = new List<StorageObject>();
+            var client = this.GetPocoClient();
+
+            var container = await client.GetStorageContainer(request);
+            foreach (var storageObject in container.Objects)
+            {
+                try
+                {
+                    var obj = await client.GetStorageObject(request.ContainerName, storageObject.FullName);
+                    objects.Add(obj);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    //TODO: think about a better way to bubble up non-fatal errors like a 404.
+                    if (!ex.Message.Contains(HttpStatusCode.NotFound.ToString()))
+                    {
+                        throw;
+                    }
+                }
+
+            }
+
+            return objects;
+
         }
 
         /// <inheritdoc/>

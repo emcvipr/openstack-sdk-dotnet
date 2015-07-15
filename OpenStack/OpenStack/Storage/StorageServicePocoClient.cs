@@ -190,6 +190,26 @@ namespace OpenStack.Storage
             return container;
         }
 
+        // <inheritdoc/>
+        public async Task<StorageContainer> GetStorageContainer(ListStorageObjectsRequest request)
+        {
+            request.AssertIsNotNull("request", "Cannot get a storage container with a ListStorageObjectsRequest parameter that is null.");
+            request.ContainerName.AssertIsNotNullOrEmpty("containerName", "Cannot list storage objects with a container name that is null or empty.");
+
+            var client = this.GetRestClient();
+            var resp = await client.GetContainer(request);
+
+            if (resp.StatusCode != HttpStatusCode.OK && resp.StatusCode != HttpStatusCode.NoContent)
+            {
+                throw new InvalidOperationException(string.Format("Failed to get storage container '{0}'. The remote server returned the following status code: '{1}'.", request.ContainerName, resp.StatusCode));
+            }
+
+            var converter = this.ServiceLocator.Locate<IStorageContainerPayloadConverter>();
+            var container = converter.Convert(request.ContainerName, resp.Headers, await resp.ReadContentAsStringAsync());
+
+            return container;
+        }
+
         /// <inheritdoc/>
         public async Task<StorageObject> GetStorageObject(string containerName, string objectName)
         {
@@ -345,6 +365,33 @@ namespace OpenStack.Storage
             catch (InvalidDataException)
             {
                 throw new InvalidOperationException(string.Format("Failed to get storage folder '{0}'. The requested folder could not be found.", folderName));
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<StorageFolder> GetStorageFolder(ListStorageObjectsRequest request)
+        {
+            request.AssertIsNotNull("request", "Cannot get a storage folder with a ListStorageObjectsRequest parameter that is null.");
+            request.ContainerName.AssertIsNotNullOrEmpty("ContainerName", "Cannot get a storage folder with a container name that is null or empty.");
+            request.FolderName.AssertIsNotNullOrEmpty("FolderName", "Cannot get a storage folder with a folder name that is null or empty.");
+
+            var client = this.GetRestClient();
+            var resp = await client.GetFolder(request);
+
+            if (resp.StatusCode != HttpStatusCode.OK && resp.StatusCode != HttpStatusCode.NoContent)
+            {
+                throw new InvalidOperationException(string.Format("Failed to get storage folder '{0}'. The remote server returned the following status code: '{1}'.", request.FolderName, resp.StatusCode));
+            }
+
+            try
+            {
+                var converter = this.ServiceLocator.Locate<IStorageFolderPayloadConverter>();
+                var folder = converter.Convert(request.ContainerName, request.FolderName, await resp.ReadContentAsStringAsync());
+                return folder;
+            }
+            catch (InvalidDataException)
+            {
+                throw new InvalidOperationException(string.Format("Failed to get storage folder '{0}'. The requested folder could not be found.", request.FolderName));
             }
         }
 

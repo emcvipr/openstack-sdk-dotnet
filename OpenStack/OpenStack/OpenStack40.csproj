@@ -160,6 +160,7 @@
     <Compile Include="Storage\IStorageServiceRestClientFactory.cs" />
     <Compile Include="Storage\LargeStorageObjectCreator.cs" />
     <Compile Include="Storage\LargeStorageObjectCreatorFactory.cs" />
+    <Compile Include="Storage\ListStorageObjectsRequest.cs" />
     <Compile Include="Storage\StaticLargeObjectManifest.cs" />
     <Compile Include="Storage\StorageAccount.cs" />
     <Compile Include="Storage\StorageAccountPayloadConverter.cs" />

@@ -32,11 +32,15 @@ namespace OpenStack.Test.Storage
 
         public Func<string, Task<StorageContainer>> GetStorageContainerDelegate { get; set; }
 
+        public Func<ListStorageObjectsRequest, Task<StorageContainer>> GetStorageContainerRequestDelegate { get; set; }
+
         public Func<string, Task> DeleteContainerDelegate { get; set; }
 
         public Func<StorageContainer, Task> UpdateStorageContainerDelegate { get; set; }
 
         public Func<string, Task<IEnumerable<StorageObject>>> ListStorageObjectsDelegate { get; set; }
+
+        public Func<ListStorageObjectsRequest, Task<IEnumerable<StorageObject>>> ListStorageObjectsRequestDelegate { get; set; }
 
         public Func<Task<IEnumerable<StorageContainer>>> ListStorageContainersDelegate { get; set; }
 
@@ -64,6 +68,8 @@ namespace OpenStack.Test.Storage
 
         public Func<string, string, Task<StorageFolder>> GetStorageFolderDelegate { get; set; }
 
+        public Func<ListStorageObjectsRequest, Task<StorageFolder>> GetStorageFolderRequestDelegate { get; set; }
+
         public Func<string, string, Task> CreateStorageFolderDelegate { get; set; }
 
         public Func<string, string, Task> DeleteStorageFolderDelegate { get; set; }
@@ -85,6 +91,11 @@ namespace OpenStack.Test.Storage
             return await GetStorageContainerDelegate(containerName);
         }
 
+        public async Task<StorageContainer> GetStorageContainer(ListStorageObjectsRequest request)
+        {
+            return await GetStorageContainerRequestDelegate(request);
+        }
+
         public async Task DeleteStorageContainer(string containerName)
         {
             await DeleteContainerDelegate(containerName);
@@ -98,6 +109,11 @@ namespace OpenStack.Test.Storage
         public async Task<IEnumerable<StorageObject>> ListStorageObjects(string containerName)
         {
             return await ListStorageObjectsDelegate(containerName);
+        }
+
+        public async Task<IEnumerable<StorageObject>> ListStorageObjects(ListStorageObjectsRequest request)
+        {
+            return await ListStorageObjectsRequestDelegate(request);
         }
 
         public async Task<IEnumerable<StorageContainer>> ListStorageContainers()
@@ -165,6 +181,11 @@ namespace OpenStack.Test.Storage
         public async Task<StorageFolder> GetStorageFolder(string containerName, string folderName)
         {
             return await GetStorageFolderDelegate(containerName, folderName);
+        }
+
+        public async Task<StorageFolder> GetStorageFolder(ListStorageObjectsRequest request)
+        {
+            return await GetStorageFolderRequestDelegate(request);
         }
 
         public async Task CreateStorageFolder(string containerName, string folderName)

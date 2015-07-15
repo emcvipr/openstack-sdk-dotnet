@@ -361,6 +361,9 @@
     <Compile Include="..\OpenStack\ServiceClientContext.cs">
       <Link>ServiceClientContext.cs</Link>
     </Compile>
+    <Compile Include="..\OpenStack\Storage\ListStorageObjectsRequest.cs">
+      <Link>Storage\ListStorageObjectsRequest.cs</Link>
+    </Compile>
     <Compile Include="Common\ReflectionExtentions.cs" />
     <Compile Include="Common\StreamExtentions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

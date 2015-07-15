@@ -69,6 +69,13 @@ namespace OpenStack.Storage
         Task<StorageContainer> GetStorageContainer(string containerName);
 
         /// <summary>
+        /// Gets the details of a storage container and limits results using supplied request parameter.
+        /// </summary>
+        /// <param name="request">The available parameters to list items in a container.</param>
+        /// <returns>The storage container.</returns>
+        Task<StorageContainer> GetStorageContainer(ListStorageObjectsRequest request);
+
+        /// <summary>
         /// Gets a storage object from the remote OpenStack instance.
         /// </summary>
         /// <param name="containerName">The name of the parent storage container.</param>
@@ -129,6 +136,14 @@ namespace OpenStack.Storage
         /// <param name="folderName">The name of the folder to get.</param>
         /// <returns>A shallow object representation of the folder and it's contained objects and sub folders.</returns>
         Task<StorageFolder> GetStorageFolder(string containerName, string folderName);
+
+        /// <summary>
+        /// Gets a storage folder from the remote OpenStack instance using supplied request parameter to limit the results.
+        /// The returned folder is a shallow object graph representation.
+        /// </summary>
+        /// <param name="request">The available parameters to list items in a container.</param>
+        /// <returns>A shallow object representation of the folder and it's contained objects and sub folders.</returns>
+        Task<StorageFolder> GetStorageFolder(ListStorageObjectsRequest request);
 
         /// <summary>
         /// Creates a storage folder on the remote OpenStack instance.

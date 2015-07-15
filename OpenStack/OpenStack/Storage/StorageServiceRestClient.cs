@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Linq;
 using OpenStack.Common;
 using OpenStack.Common.Http;
 using OpenStack.Common.ServiceLocation;
@@ -147,6 +148,48 @@ namespace OpenStack.Storage
         }
 
         /// <inheritdoc/>
+        public async Task<IHttpResponseAbstraction> GetFolder(ListStorageObjectsRequest request)
+        {
+            AssertContainerNameIsValid(request.ContainerName);
+            request.FolderName.AssertIsNotNullOrEmpty("FolderName", "Cannot get a folder with a null or empty folder name.");
+
+            var client = this.GetHttpClient(this.Context);
+
+            var baseUri = CreateRequestUri(this.Context.PublicEndpoint, request.ContainerName);
+
+            Dictionary<string, string> uriParams = new Dictionary<string, string>();
+
+            if (request.Limit > 0)
+            {
+                uriParams.Add("limit", request.Limit.ToString());
+            }
+            if (request.FolderName != null)
+            {
+                if (!string.Equals("/", request.FolderName, StringComparison.Ordinal))
+                {
+                    uriParams.Add("prefix", request.FolderName);
+                }
+            }
+            if (request.Marker != null)
+            {
+                uriParams.Add("marker", request.Marker);
+            }
+            if (request.EndMarker != null)
+            {
+                uriParams.Add("end_marker", request.EndMarker);
+            }
+            string[] arrayUriParams = uriParams.Select(d => string.Format("{0}={1}", d.Key, d.Value)).ToArray();
+
+            var uriParamsResult = arrayUriParams.Length > 0 ? "&" + string.Join("&", arrayUriParams) : string.Empty;
+
+            client.Uri = new Uri(string.Format("{0}?delimiter=/{1}", baseUri, uriParamsResult));
+
+            client.Method = HttpMethod.Get;
+
+            return await client.SendAsync();
+        }
+
+        /// <inheritdoc/>
         public async Task<IHttpResponseAbstraction> GetContainer(string containerName)
         {
             AssertContainerNameIsValid(containerName);
@@ -154,6 +197,44 @@ namespace OpenStack.Storage
             var client = this.GetHttpClient(this.Context);
 
             client.Uri = CreateRequestUri(this.Context.PublicEndpoint, containerName);
+            client.Method = HttpMethod.Get;
+
+            return await client.SendAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task<IHttpResponseAbstraction> GetContainer(ListStorageObjectsRequest request)
+        {
+            AssertContainerNameIsValid(request.ContainerName);
+
+            var client = this.GetHttpClient(this.Context);
+
+            var baseUri = CreateRequestUri(this.Context.PublicEndpoint, request.ContainerName);
+
+            Dictionary<string, string> uriParams = new Dictionary<string, string>();
+
+            if (request.Limit > 0)
+            {
+                uriParams.Add("limit", request.Limit.ToString());
+            }
+            if (request.FolderName != null)
+            {
+                uriParams.Add("prefix", request.FolderName);
+            }
+            if (request.Marker != null)
+            {
+                uriParams.Add("marker", request.Marker);
+            }
+            if (request.EndMarker != null)
+            {
+                uriParams.Add("end_marker", request.EndMarker);
+            }
+            string[] arrayUriParams = uriParams.Select(d => string.Format("{0}={1}", d.Key, d.Value)).ToArray();
+
+            var uriParamsResult = arrayUriParams.Length > 0 ? "?" + string.Join("&", arrayUriParams) : string.Empty;
+
+            client.Uri = new Uri(string.Format("{0}{1}", baseUri, uriParamsResult));
+
             client.Method = HttpMethod.Get;
 
             return await client.SendAsync();

@@ -537,6 +537,22 @@ namespace OpenStack.Test.Storage
         }
 
         [TestMethod]
+        public async Task GetStorageContainerIncludesAuthHeaderWithRequest()
+        {
+            var containerName = "newContainer";
+
+            ListStorageObjectsRequest request = new ListStorageObjectsRequest() { ContainerName = containerName };
+
+            var client =
+                new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
+
+            await client.GetContainer(request);
+
+            Assert.IsTrue(this.simulator.Headers.ContainsKey("X-Auth-Token"));
+            Assert.AreEqual(this.authId, this.simulator.Headers["X-Auth-Token"]);
+        }
+
+        [TestMethod]
         public async Task GetStorageContainerFormsCorrectUrlAndMethod()
         {
             var containerName = "newContainer";
@@ -551,6 +567,22 @@ namespace OpenStack.Test.Storage
         }
 
         [TestMethod]
+        public async Task GetStorageContainerFormsCorrectUrlAndMethodWithRequest()
+        {
+            var containerName = "newContainer";
+
+            ListStorageObjectsRequest request = new ListStorageObjectsRequest() { ContainerName = containerName };
+
+            var client =
+                new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
+
+            await client.GetContainer(request);
+
+            Assert.AreEqual(string.Format("{0}/{1}", endpoint, containerName), this.simulator.Uri.ToString());
+            Assert.AreEqual(HttpMethod.Get, this.simulator.Method);
+        }
+
+        [TestMethod]
         public async Task ErrorIsReturnedWhenContainerIsNotFound()
         {
             var containerName = "newContainer";
@@ -559,6 +591,23 @@ namespace OpenStack.Test.Storage
                  new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
 
             var resp = await client.GetContainer(containerName);
+
+            Assert.AreEqual(HttpStatusCode.NotFound, resp.StatusCode);
+
+            //Add some assert here to validate that we got all the headers we expected... 
+        }
+
+        [TestMethod]
+        public async Task ErrorIsReturnedWhenContainerIsNotFoundWithRequest()
+        {
+            var containerName = "newContainer";
+
+            ListStorageObjectsRequest request = new ListStorageObjectsRequest() { ContainerName = containerName };
+
+            var client =
+                 new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
+
+            var resp = await client.GetContainer(request);
 
             Assert.AreEqual(HttpStatusCode.NotFound, resp.StatusCode);
 
@@ -583,6 +632,25 @@ namespace OpenStack.Test.Storage
         }
 
         [TestMethod]
+        public async Task CanGetStorageContainerWithRequest()
+        {
+            var containerName = "newContainer";
+
+            ListStorageObjectsRequest request = new ListStorageObjectsRequest() { ContainerName = containerName };
+
+            this.simulator.Containers.Add(containerName, new StorageRestSimulator.StorageItem(containerName));
+
+            var client =
+                 new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
+
+            var resp = await client.GetContainer(request);
+
+            Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
+
+            //Add some assert here to validate that we got all the headers we expected... 
+        }
+
+        [TestMethod]
         public async Task CanGetStorageContainerWithMetadata()
         {
             var containerName = "newContainer";
@@ -595,6 +663,29 @@ namespace OpenStack.Test.Storage
                  new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
 
             var resp = await client.GetContainer(containerName);
+
+            Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
+
+
+            Assert.IsTrue(resp.Headers.Any(kvp => kvp.Key == "X-Object-Meta-Test2"));
+            Assert.AreEqual("Test2", resp.Headers.First(kvp => kvp.Key == "X-Object-Meta-Test2").Value.First());
+        }
+
+        [TestMethod]
+        public async Task CanGetStorageContainerWithMetadataWithRequest()
+        {
+            var containerName = "newContainer";
+
+            ListStorageObjectsRequest request = new ListStorageObjectsRequest() { ContainerName = containerName };
+
+            var metaData = new Dictionary<string, string> { { "X-Object-Meta-Test1", "Test1" }, { "X-Object-Meta-Test2", "Test2" } };
+
+            this.simulator.Containers.Add(containerName, new StorageRestSimulator.StorageItem(containerName) { MetaData = metaData });
+
+            var client =
+                 new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
+
+            var resp = await client.GetContainer(request);
 
             Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
 
@@ -1376,6 +1467,27 @@ namespace OpenStack.Test.Storage
         }
 
         [TestMethod]
+        public async Task GetStorageFolderIncludesAuthHeaderWithRequest()
+        {
+            var containerName = "newContainer";
+            var folderName = "newFolder";
+
+            ListStorageObjectsRequest request = new ListStorageObjectsRequest() 
+            { 
+                ContainerName = containerName,
+                FolderName = folderName
+            };
+
+            var client =
+                new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
+
+            await client.GetFolder(request);
+
+            Assert.IsTrue(this.simulator.Headers.ContainsKey("X-Auth-Token"));
+            Assert.AreEqual(this.authId, this.simulator.Headers["X-Auth-Token"]);
+        }
+
+        [TestMethod]
         public async Task GetStorageFolderFormsCorrectUrlAndMethod()
         {
             var containerName = "newContainer";
@@ -1385,6 +1497,27 @@ namespace OpenStack.Test.Storage
                 new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
 
             await client.GetFolder(containerName, folderName);
+
+            Assert.AreEqual(string.Format("{0}/{1}?delimiter=/&prefix={2}", endpoint, containerName, folderName), this.simulator.Uri.ToString());
+            Assert.AreEqual(HttpMethod.Get, this.simulator.Method);
+        }
+
+        [TestMethod]
+        public async Task GetStorageFolderFormsCorrectUrlAndMethodWithRequest()
+        {
+            var containerName = "newContainer";
+            var folderName = "a/b/b/";
+
+            ListStorageObjectsRequest request = new ListStorageObjectsRequest()
+            {
+                ContainerName = containerName,
+                FolderName = folderName
+            };
+
+            var client =
+                new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
+
+            await client.GetFolder(request);
 
             Assert.AreEqual(string.Format("{0}/{1}?delimiter=/&prefix={2}", endpoint, containerName, folderName), this.simulator.Uri.ToString());
             Assert.AreEqual(HttpMethod.Get, this.simulator.Method);
@@ -1406,6 +1539,27 @@ namespace OpenStack.Test.Storage
         }
 
         [TestMethod]
+        public async Task GetRootStorageFolderFormsCorrectUrlAndMethodWithRequest()
+        {
+            var containerName = "newContainer";
+            var folderName = "/";
+
+            ListStorageObjectsRequest request = new ListStorageObjectsRequest()
+            {
+                ContainerName = containerName,
+                FolderName = folderName
+            };
+
+            var client =
+                new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
+
+            await client.GetFolder(request);
+
+            Assert.AreEqual(string.Format("{0}/{1}?delimiter=/", endpoint, containerName), this.simulator.Uri.ToString());
+            Assert.AreEqual(HttpMethod.Get, this.simulator.Method);
+        }
+
+        [TestMethod]
         public async Task ErrorIsReturnedWhenFolderIsNotFound()
         {
             var containerName = "newContainer";
@@ -1415,6 +1569,26 @@ namespace OpenStack.Test.Storage
                  new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
 
             var resp = await client.GetFolder(containerName, folderName);
+
+            Assert.AreEqual(HttpStatusCode.NotFound, resp.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task ErrorIsReturnedWhenFolderIsNotFoundWithRequest()
+        {
+            var containerName = "newContainer";
+            var folderName = "a/b/b/";
+
+            ListStorageObjectsRequest request = new ListStorageObjectsRequest()
+            {
+                ContainerName = containerName,
+                FolderName = folderName
+            };
+
+            var client =
+                 new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
+
+            var resp = await client.GetFolder(request);
 
             Assert.AreEqual(HttpStatusCode.NotFound, resp.StatusCode);
         }
@@ -1439,6 +1613,31 @@ namespace OpenStack.Test.Storage
         }
 
         [TestMethod]
+        public async Task CanGetStorageFolderWithRequest()
+        {
+            var containerName = "newContainer";
+            var folderName = "a/b/b/";
+
+            ListStorageObjectsRequest request = new ListStorageObjectsRequest()
+            {
+                ContainerName = containerName,
+                FolderName = folderName
+            };
+
+            var content = TestHelper.CreateStream(string.Empty);
+            content.Position = 0;
+
+            this.simulator.Objects.Add(folderName, new StorageRestSimulator.StorageItem(folderName) { Content = content });
+
+            var client =
+                 new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
+
+            var resp = await client.GetFolder(request);
+
+            Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
+        }
+
+        [TestMethod]
         public async Task CanGetStorageFolderWithMetadata()
         {
             var containerName = "newContainer";
@@ -1455,6 +1654,36 @@ namespace OpenStack.Test.Storage
                  new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
 
             var resp = await client.GetFolder(containerName, folderName);
+
+            Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
+
+            Assert.IsTrue(resp.Headers.Any(kvp => kvp.Key == "X-Object-Meta-Test2"));
+            Assert.AreEqual("Test2", resp.Headers.First(kvp => kvp.Key == "X-Object-Meta-Test2").Value.First());
+        }
+
+        [TestMethod]
+        public async Task CanGetStorageFolderWithMetadataWithRequest()
+        {
+            var containerName = "newContainer";
+            var folderName = "a/b/b/";
+
+            ListStorageObjectsRequest request = new ListStorageObjectsRequest()
+            {
+                ContainerName = containerName,
+                FolderName = folderName
+            };
+
+            var content = TestHelper.CreateStream(string.Empty);
+            content.Position = 0;
+
+            var metaData = new Dictionary<string, string> { { "X-Object-Meta-Test1", "Test1" }, { "X-Object-Meta-Test2", "Test2" } };
+
+            this.simulator.Objects.Add(folderName, new StorageRestSimulator.StorageItem(folderName) { MetaData = metaData, Content = content });
+
+            var client =
+                 new StorageServiceRestClient(GetValidContext(), this.ServiceLocator);
+
+            var resp = await client.GetFolder(request);
 
             Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
 

@@ -67,7 +67,17 @@ namespace OpenStack.Test.Storage
             return Task.Factory.StartNew(() => Responses.Dequeue());
         }
 
+        public Task<IHttpResponseAbstraction> GetFolder(ListStorageObjectsRequest request)
+        {
+            return Task.Factory.StartNew(() => Responses.Dequeue());
+        }
+
         public Task<IHttpResponseAbstraction> GetContainer(string containerName)
+        {
+            return Task.Factory.StartNew(() => Responses.Dequeue());
+        }
+
+        public Task<IHttpResponseAbstraction> GetContainer(ListStorageObjectsRequest request)
         {
             return Task.Factory.StartNew(() => Responses.Dequeue());
         }

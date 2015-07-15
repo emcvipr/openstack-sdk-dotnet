@@ -36,6 +36,8 @@ namespace OpenStack.Test.Storage
 
         public Func<string, Task<StorageContainer>> GetStorageContainerDelegate { get; set; }
 
+        public Func<ListStorageObjectsRequest, Task<StorageContainer>> GetStorageContainerRequestDelegate { get; set; }
+
         public Func<Task<StorageAccount>> GetStorageAccountDelegate { get; set; }
 
         public Func<string, string, Task<StorageObject>> GetStorageObjectDelegate { get; set; }
@@ -43,6 +45,8 @@ namespace OpenStack.Test.Storage
         public Func<string, string, Task<StorageManifest>> GetStorageManifestDelegate { get; set; }
 
         public Func<string, string, Task<StorageFolder>> GetStorageFolderDelegate { get; set; }
+
+        public Func<ListStorageObjectsRequest, Task<StorageFolder>> GetStorageFolderRequestDelegate { get; set; }
 
         public Func<string, string, Stream, Task<StorageObject>> DownloadStorageObjectDelegate { get; set; }
 
@@ -86,6 +90,11 @@ namespace OpenStack.Test.Storage
             return await this.GetStorageContainerDelegate(containerName);
         }
 
+        public async Task<StorageContainer> GetStorageContainer(ListStorageObjectsRequest request)
+        {
+            return await this.GetStorageContainerRequestDelegate(request);
+        }
+
         public async Task<StorageObject> GetStorageObject(string containerName, string objectName)
         {
             return await this.GetStorageObjectDelegate(containerName, objectName);
@@ -124,6 +133,11 @@ namespace OpenStack.Test.Storage
         public async Task<StorageFolder> GetStorageFolder(string containerName, string folderName)
         {
             return await this.GetStorageFolderDelegate(containerName, folderName);
+        }
+
+        public async Task<StorageFolder> GetStorageFolder(ListStorageObjectsRequest request)
+        {
+            return await this.GetStorageFolderRequestDelegate(request);
         }
 
         public async Task CreateStorageFolder(string containerName, string folderName)

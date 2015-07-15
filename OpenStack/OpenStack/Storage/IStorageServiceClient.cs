@@ -58,6 +58,13 @@ namespace OpenStack.Storage
         Task<StorageContainer> GetStorageContainer(string containerName);
 
         /// <summary>
+        /// Gets a storage container from the remote OpenStack instance and limits results using supplied request parameter.
+        /// </summary>
+        /// <param name="request">The available parameters to list items in a container.</param>
+        /// <returns>A storage container.</returns>
+        Task<StorageContainer> GetStorageContainer(ListStorageObjectsRequest request);
+
+        /// <summary>
         /// Deletes a storage container from the remote OpenStack instance.
         /// </summary>
         /// <param name="containerName">The name of the container.</param>
@@ -77,6 +84,13 @@ namespace OpenStack.Storage
         /// <param name="containerName">The name of the container.</param>
         /// <returns>An enumerable list of storage objects.</returns>
         Task<IEnumerable<StorageObject>> ListStorageObjects(string containerName);
+
+        /// <summary>
+        /// Lists the storage objects in a given container and limit results using supplied request parameter.
+        /// </summary>
+        /// <param name="request">The available parameters to list items in a container.</param>
+        /// <returns>An enumerable list of storage objects.</returns>
+        Task<IEnumerable<StorageObject>> ListStorageObjects(ListStorageObjectsRequest request);
 
         /// <summary>
         /// Lists storage containers on the remote OpenStack instance.
@@ -188,6 +202,14 @@ namespace OpenStack.Storage
         /// <param name="folderName">The name of the folder to get.</param>
         /// <returns>A shallow object representation of the folder and it's contained objects and sub folders.</returns>
         Task<StorageFolder> GetStorageFolder(string containerName, string folderName);
+
+        /// <summary>
+        /// Gets a storage folder from the remote OpenStack instance using supplied request parameter to limit the results.
+        /// The returned folder is a shallow object graph representation.
+        /// </summary>
+        /// <param name="request">The available parameters to list items in a container.</param>
+        /// <returns>A shallow object representation of the folder and it's contained objects and sub folders.</returns>
+        Task<StorageFolder> GetStorageFolder(ListStorageObjectsRequest request);
 
         /// <summary>
         /// Creates a storage folder on the remote OpenStack instance.
