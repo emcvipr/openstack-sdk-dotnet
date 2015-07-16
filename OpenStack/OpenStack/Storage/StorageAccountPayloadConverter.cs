@@ -48,10 +48,11 @@ namespace OpenStack.Storage
 
             try
             {
-                var totalBytes = long.Parse(headers["X-Account-Bytes-Used"].First());
-                var totalObjects = int.Parse(headers["X-Account-Object-Count"].First());
-                var totalContainers = int.Parse(headers["X-Account-Container-Count"].First());
+                var totalBytes = 0;//long.Parse(headers["X-Account-Bytes-Used"].First());
+                var totalObjects = 0;// int.Parse(headers["X-Account-Object-Count"].First());
+                //var totalContainers = int.Parse(headers["X-Account-Container-Count"].First());
                 var containers = containerConverter.Convert(payload);
+                var totalContainers = containers.Count<StorageContainer>();
                 var metadata = headers.Where(kvp => kvp.Key.StartsWith("X-Account-Meta")).ToDictionary(header => header.Key.Substring(15, header.Key.Length - 15), header => header.Value.First());
 
                 return new StorageAccount(name, totalBytes, totalObjects, totalContainers, metadata, containers);

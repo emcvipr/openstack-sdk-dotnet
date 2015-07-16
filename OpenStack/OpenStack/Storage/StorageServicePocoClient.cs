@@ -146,7 +146,7 @@ namespace OpenStack.Storage
             var client = this.GetRestClient();
             var resp = await client.CreateContainer(container.Name, container.Metadata);
 
-            if (resp.StatusCode != HttpStatusCode.Created && resp.StatusCode != HttpStatusCode.NoContent)
+            if (resp.StatusCode != HttpStatusCode.Created && resp.StatusCode != HttpStatusCode.NoContent && resp.StatusCode != HttpStatusCode.Accepted)
             {
                 throw new InvalidOperationException(string.Format("Failed to create storage container '{0}'. The remote server returned the following status code: '{1}'.", container.Name, resp.StatusCode));
             }
