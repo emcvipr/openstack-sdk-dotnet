@@ -103,7 +103,7 @@ namespace OpenStack.Test.Identity
         public void AuthenticationPayloadIsGeneratedCorrectly()
         {
             var creds = GetValidCredentials();
-            var payload = IdentityServiceRestClient.CreateAuthenticationJsonPayload(creds);
+            var payload = IdentityServiceRestClient.CreateAuthenticationJsonPayload(creds, true);
 
             var obj = JObject.Parse(payload);
             var userName = obj["auth"]["passwordCredentials"]["username"];
