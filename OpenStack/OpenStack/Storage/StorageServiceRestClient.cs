@@ -182,7 +182,8 @@ namespace OpenStack.Storage
 
             var uriParamsResult = arrayUriParams.Length > 0 ? "&" + string.Join("&", arrayUriParams) : string.Empty;
 
-            client.Uri = new Uri(string.Format("{0}?delimiter=/{1}", baseUri, uriParamsResult));
+            //client.Uri = new Uri(string.Format("{0}?delimiter=/{1}", baseUri, uriParamsResult));
+            client.Uri = new Uri(string.Format("{0}?format=json&delimiter=/{1}", baseUri, uriParamsResult));
 
             client.Method = HttpMethod.Get;
 
@@ -233,9 +234,10 @@ namespace OpenStack.Storage
             }
             string[] arrayUriParams = uriParams.Select(d => string.Format("{0}={1}", d.Key, d.Value)).ToArray();
 
-            var uriParamsResult = arrayUriParams.Length > 0 ? "?" + string.Join("&", arrayUriParams) : string.Empty;
+            //var uriParamsResult = arrayUriParams.Length > 0 ? "?" + string.Join("&", arrayUriParams) : string.Empty;
+            var uriParamsResult = arrayUriParams.Length > 0 ? "&" + string.Join("&", arrayUriParams) : string.Empty;
 
-            client.Uri = new Uri(string.Format("{0}{1}", baseUri, uriParamsResult));
+            client.Uri = new Uri(string.Format("{0}?format=json{1}", baseUri, uriParamsResult));
 
             client.Method = HttpMethod.Get;
 
